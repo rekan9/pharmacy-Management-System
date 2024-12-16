@@ -18,8 +18,7 @@ namespace pharmacymansys
             MgfLoad();
         }
 
-        static string connectionString = "data source=XE;user id=PHARMACY;password=1234";
-        OracleConnection conn = new OracleConnection(connectionString);
+        static string connectionString = "User Id=hr;Password=hr;Data Source=localhost:1521/orcl";
         DataTable dt;
 
 
@@ -27,33 +26,35 @@ namespace pharmacymansys
         {
             try
             {
-                conn.Open();
-              //  string sqlquery = "SELECT MED_ID,MED_NAME,MED_STG,MED_MGF,MED_BATCH,MED_GROUP,MED_TYPE,COST_PRICE,SELL_PRICE,NOTES FROM MED_INFO";
-                string sqlquery = "SELECT * FROM MFG_INFO";
-                OracleCommand cmd = new OracleCommand(sqlquery, conn);
-                OracleDataAdapter oda = new OracleDataAdapter();
-                oda.SelectCommand = cmd;
-                dt = new DataTable();
-                //     dt.Columns["MED_NAME"].ColumnName = "Name";
+                using (OracleConnection conn = new OracleConnection(connectionString))
+                {
+                    conn.Open();
+                    //  string sqlquery = "SELECT MED_ID,MED_NAME,MED_STG,MED_MGF,MED_BATCH,MED_GROUP,MED_TYPE,COST_PRICE,SELL_PRICE,NOTES FROM MED_INFO";
+                    string sqlquery = "SELECT * FROM MFG_INFO";
+                    OracleCommand cmd = new OracleCommand(sqlquery, conn);
+                    OracleDataAdapter oda = new OracleDataAdapter();
+                    oda.SelectCommand = cmd;
+                    dt = new DataTable();
+                    //     dt.Columns["MED_NAME"].ColumnName = "Name";
 
-                oda.Fill(dt);
-                BindingSource bsource = new BindingSource();
-                bsource.DataSource = dt;
-                dataGridView1.DataSource = bsource;
-                oda.Update(dt);
-                dt.Columns[0].ColumnName = "ID";
-                dt.Columns[1].ColumnName = "Name";
-                dt.Columns[2].ColumnName = "Address";
-                dt.Columns[3].ColumnName = "Mobile";
-                dt.AcceptChanges();
+                    oda.Fill(dt);
+                    BindingSource bsource = new BindingSource();
+                    bsource.DataSource = dt;
+                    dataGridView1.DataSource = bsource;
+                    oda.Update(dt);
+                    dt.Columns[0].ColumnName = "ID";
+                    dt.Columns[1].ColumnName = "Name";
+                    dt.Columns[2].ColumnName = "Address";
+                    dt.Columns[3].ColumnName = "Mobile";
+                    dt.AcceptChanges();
 
-                conn.Close();
+                    conn.Close();
+                }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
-
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -71,9 +72,9 @@ namespace pharmacymansys
                 DataGridViewRow row = this.dataGridView1.Rows[e.RowIndex];
                 pid = row.Cells["ID"].Value.ToString();
             }
+
             MgfViewInfo miv = new MgfViewInfo(pid);
             miv.ShowDialog();
-
         }
     }
 }

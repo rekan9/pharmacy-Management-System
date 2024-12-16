@@ -26,36 +26,40 @@ namespace pharmacymansys
 
 
 
-        static string connectionString = "data source=XE;user id=PHARMACY;password=1234";
-        OracleConnection conn = new OracleConnection(connectionString);
+        static string connectionString = "User Id=hr;Password=hr;Data Source=localhost:1521/orcl";
+        
         DataTable dt;
         void MedStoreLoad()
         {
             try
             {
-                conn.Open();
-                string sqlquery = "SELECT * FROM MED_STORE";
-                //string sqlquery = "SELECT * FROM MED_INFO";
-                OracleCommand cmd = new OracleCommand(sqlquery, conn);
-                OracleDataAdapter oda = new OracleDataAdapter();
-                oda.SelectCommand = cmd;
-                dt = new DataTable();
-                //     dt.Columns["MED_NAME"].ColumnName = "Name";
+                using (OracleConnection conn = new OracleConnection(connectionString))
+                {
+                    conn.Open();
+                    string sqlquery = "SELECT * FROM MED_STORE";
+                    //string sqlquery = "SELECT * FROM MED_INFO";
+                    OracleCommand cmd = new OracleCommand(sqlquery, conn);
+                    OracleDataAdapter oda = new OracleDataAdapter();
+                    oda.SelectCommand = cmd;
+                    dt = new DataTable();
+                    //     dt.Columns["MED_NAME"].ColumnName = "Name";
 
-                oda.Fill(dt);
-                BindingSource bsource = new BindingSource();
-                bsource.DataSource = dt;
-                dataGridView1.DataSource = bsource;
-                oda.Update(dt);
-                dt.Columns[0].ColumnName = "ID";
-                dt.Columns[1].ColumnName = "Name";
-                dt.Columns[2].ColumnName = "Quantity";
-                dt.Columns[3].ColumnName = "Damage Qty";
-                dt.Columns[4].ColumnName = "Reorder Level";
-               
-                dt.AcceptChanges();
+                    oda.Fill(dt);
+                    BindingSource bsource = new BindingSource();
+                    bsource.DataSource = dt;
+                    dataGridView1.DataSource = bsource;
+                    oda.Update(dt);
+                    dt.Columns[0].ColumnName = "ID";
+                    dt.Columns[1].ColumnName = "Name";
+                    dt.Columns[2].ColumnName = "Quantity";
+                    dt.Columns[3].ColumnName = "Damage Qty";
+                    dt.Columns[4].ColumnName = "Reorder Level";
 
-                conn.Close();
+                    dt.AcceptChanges();
+
+                    conn.Close();
+                }
+                
             }
             catch (Exception ex)
             {

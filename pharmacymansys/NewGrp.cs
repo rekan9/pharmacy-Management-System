@@ -17,38 +17,44 @@ namespace pharmacymansys
             InitializeComponent();
         }
 
-        static string connectionString = "data source=XE;user id=PHARMACY;password=1234";
-        OracleConnection conn = new OracleConnection(connectionString);
+        static string connectionString = "User Id=hr;Password=hr;Data Source=localhost:1521/orcl";
+
 
         private void button1_Click(object sender, EventArgs e)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(this.textBox1.Text))
+                using (OracleConnection conn = new OracleConnection(connectionString))
                 {
-                    MessageBox.Show("Fill the Group name", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                else
-                {
-                    if (conn.State != ConnectionState.Open)
+                    if (string.IsNullOrWhiteSpace(this.textBox1.Text))
                     {
-                        conn.Open();
+                        MessageBox.Show("Fill the Group name", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-                    OracleCommand cmd = new OracleCommand("INSERT INTO MED_GROUP(GNAME,GDESCRIPTION,NOTES) VALUES('" + textBox1.Text + "','"+richTextBox1.Text+"','"+richTextBox2.Text+"')", conn);
-                    int i = cmd.ExecuteNonQuery();
-                    if (i > 0)
+                    else
                     {
-                        MessageBox.Show("Information Uploaded...");
-                        this.Close();
+                        if (conn.State != ConnectionState.Open)
+                        {
+                            conn.Open();
+                        }
+
+                        OracleCommand cmd = new OracleCommand(
+                            "INSERT INTO MED_GROUP(GNAME,GDESCRIPTION,NOTES) VALUES('" + textBox1.Text + "','" +
+                            richTextBox1.Text + "','" + richTextBox2.Text + "')", conn);
+                        int i = cmd.ExecuteNonQuery();
+                        if (i > 0)
+                        {
+                            MessageBox.Show("Information Uploaded...");
+                            this.Close();
+                        }
                     }
+
+                    conn.Close();
                 }
             }
             catch (Exception exc)
             {
                 MessageBox.Show(exc.Message);
             }
-            conn.Close();
-            
         }
     }
 }

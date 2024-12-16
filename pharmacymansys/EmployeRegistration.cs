@@ -21,8 +21,7 @@ namespace pharmacymansys
             InitializeComponent();
         }
 
-        static string connectionString = "data source=XE;user id=PHARMACY;password=1234";
-        OracleConnection conn = new OracleConnection(connectionString);
+        static string connectionString = "User Id=hr;Password=hr;Data Source=localhost:1521/orcl";
        
         string picpath=null;
         byte[] imageBt = null;
@@ -138,70 +137,76 @@ namespace pharmacymansys
         {
             try
             {
-                if (comboBox2.SelectedIndex == -1 || string.IsNullOrWhiteSpace(this.textBox8.Text) || string.IsNullOrWhiteSpace(this.textBox9.Text) || string.IsNullOrWhiteSpace(this.textBox10.Text) || string.IsNullOrWhiteSpace(this.textBox11.Text))
+                using (OracleConnection conn = new OracleConnection(connectionString))
                 {
-                    MessageBox.Show("Fill all the requierd field correctly", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                else 
-                {
-                    if (textBox10.Text != textBox11.Text)
-                    {
-                        MessageBox.Show("Password does not match..", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    else
-                    {
-                        position = comboBox2.GetItemText(this.comboBox2.SelectedItem);
-                        salary = textBox8.Text;
-                        unm = textBox9.Text;
-                        pass = textBox10.Text;
-                        conn.Open();
-                        OracleParameter parm = new OracleParameter();
-                        parm.OracleDbType = OracleDbType.Blob;
-                        parm.Value = imageBt;
-                        OracleCommand cmd = new OracleCommand("INSERT INTO EMPLOYE_INFO(EMP_NAME,F_NAME,M_NAME,DOB,BLOOD,EMAIL,MOBILE,GENDER,NID,MAIL_ADD,PAR_ADD,JOIN_DATE,IMAGE,POSITION,SALARY) VALUES('" + nm + "','" + fnm + "','" + mnm + "',TO_DATE('" + dob + "', 'DD/MM/YYYY'), '" + bdg + "','" + eml + "','" + mbn + "','" + radio_value + "','" + nid + "','" + madd + "','" + padd + "',TO_DATE('" + jod + "', 'DD/MM/YYYY'),:1,'" + position + "','" + salary + "')", conn);
-
-                        cmd.Parameters.Add(parm);
-
-
-                         cmd.ExecuteNonQuery();
-                     //   if (ni > 0)
-                      //  {
-                     //       MessageBox.Show("Information Uploaded...");
-                     //   }
-                        // cmd.Dispose();
-
-
-                         if (position == "Manager")
-                         {
-                             cmd = new OracleCommand("INSERT INTO MANAGER_LOGIN(E_ID,U_NAME,PASSWORD) VALUES((SELECT MAX(EMP_ID) FROM EMPLOYE_INFO),'" + unm + "','" + pass + "')", conn);
-                             int i = cmd.ExecuteNonQuery();
-                             if (i > 0)
-                             {
-                                 MessageBox.Show("Information Uploaded...");
-                             }
-                         }
-                         else 
-                         {
-                             cmd = new OracleCommand("INSERT INTO STUFF_LOGIN(E_ID,U_NAME,PASSWORD) VALUES((SELECT MAX(EMP_ID) FROM EMPLOYE_INFO),'" + unm + "','" + pass + "')", conn);
-                             int i = cmd.ExecuteNonQuery();
-                             if (i > 0)
-                             {
-                                 MessageBox.Show("Information Uploaded...");
-                                 adminControls ad = new adminControls();
-                                 this.Hide();
-                                 ad.Show();
-                             }
-                         }
-                    }
+                    if (comboBox2.SelectedIndex == -1 || string.IsNullOrWhiteSpace(this.textBox8.Text) || string.IsNullOrWhiteSpace(this.textBox9.Text) || string.IsNullOrWhiteSpace(this.textBox10.Text) || string.IsNullOrWhiteSpace(this.textBox11.Text))
+                                    {
+                                        MessageBox.Show("Fill all the requierd field correctly", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    }
+                                    else 
+                                    {
+                                        if (textBox10.Text != textBox11.Text)
+                                        {
+                                            MessageBox.Show("Password does not match..", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                        }
+                                        else
+                                        {
+                                            position = comboBox2.GetItemText(this.comboBox2.SelectedItem);
+                                            salary = textBox8.Text;
+                                            unm = textBox9.Text;
+                                            pass = textBox10.Text;
+                                            conn.Open();
+                                            OracleParameter parm = new OracleParameter();
+                                            parm.OracleDbType = OracleDbType.Blob;
+                                            parm.Value = imageBt;
+                                            OracleCommand cmd = new OracleCommand("INSERT INTO EMPLOYE_INFO(EMP_NAME,F_NAME,M_NAME,DOB,BLOOD,EMAIL,MOBILE,GENDER,NID,MAIL_ADD,PAR_ADD,JOIN_DATE,IMAGE,POSITION,SALARY) VALUES('" + nm + "','" + fnm + "','" + mnm + "',TO_DATE('" + dob + "', 'DD/MM/YYYY'), '" + bdg + "','" + eml + "','" + mbn + "','" + radio_value + "','" + nid + "','" + madd + "','" + padd + "',TO_DATE('" + jod + "', 'DD/MM/YYYY'),:1,'" + position + "','" + salary + "')", conn);
                     
+                                            cmd.Parameters.Add(parm);
+                    
+                    
+                                             cmd.ExecuteNonQuery();
+                                         //   if (ni > 0)
+                                          //  {
+                                         //       MessageBox.Show("Information Uploaded...");
+                                         //   }
+                                            // cmd.Dispose();
+                    
+                    
+                                             if (position == "Manager")
+                                             {
+                                                 cmd = new OracleCommand("INSERT INTO MANAGER_LOGIN(E_ID,U_NAME,PASSWORD) VALUES((SELECT MAX(EMP_ID) FROM EMPLOYE_INFO),'" + unm + "','" + pass + "')", conn);
+                                                 int i = cmd.ExecuteNonQuery();
+                                                 if (i > 0)
+                                                 {
+                                                     MessageBox.Show("Information Uploaded...");
+                                                 }
+                                             }
+                                             else 
+                                             {
+                                                 cmd = new OracleCommand("INSERT INTO STUFF_LOGIN(E_ID,U_NAME,PASSWORD) VALUES((SELECT MAX(EMP_ID) FROM EMPLOYE_INFO),'" + unm + "','" + pass + "')", conn);
+                                                 int i = cmd.ExecuteNonQuery();
+                                                 if (i > 0)
+                                                 {
+                                                     MessageBox.Show("Information Uploaded...");
+                                                     adminControls ad = new adminControls();
+                                                     this.Hide();
+                                                     ad.Show();
+                                                 }
+                                             }
+                                        }
+                                        
+                                    }
+
+                    conn.Close();
                 }
-              
+
+                
             }
             catch (Exception exc)
             {
                 MessageBox.Show(exc.Message);
             }
-            conn.Close();
+            
         }
 
         private void textBox5_KeyPress(object sender, KeyPressEventArgs e)

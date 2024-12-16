@@ -19,14 +19,14 @@ namespace pharmacymansys
             timer1.Start();
             AutocompleteText();
         }
-        static string connectionString = "data source=XE;user id=PHARMACY;password=1234";
-        OracleConnection conn = new OracleConnection(connectionString);
+
+        static string connectionString = "User Id=hr;Password=hr;Data Source=localhost:1521/orcl";
+
 
         string tdate;
 
         void sellinvoiceNo()
         {
-
             //check if the table has any data
             //if no then insert data with the date(today)
 
@@ -41,29 +41,31 @@ namespace pharmacymansys
 
             try
             {
-                if (conn.State != ConnectionState.Open)
+                using (OracleConnection conn = new OracleConnection(connectionString))
                 {
-                    conn.Open();
-                }
-                string sqlquery = "SELECT * FROM SALESINVOICE WHERE SDATE=TO_DATE('" + tdate + "', 'yyyymmdd')";
-                OracleCommand cmd = new OracleCommand(sqlquery, conn);
-                OracleDataAdapter oda = new OracleDataAdapter(cmd);
-                DataSet ds = new DataSet();
-                oda.Fill(ds);
-                rowno = ds.Tables[0].Rows.Count;
-                if (rowno == 0)
-                {
-                    ReturnId = "0001";
-                }
-                else
-                {
-                    rowno++;
-                    ReturnId = rowno.ToString();
-                }
+                    if (conn.State != ConnectionState.Open)
+                    {
+                        conn.Open();
+                    }
 
-                conn.Close();
+                    string sqlquery = "SELECT * FROM SALESINVOICE WHERE SDATE=TO_DATE('" + tdate + "', 'yyyymmdd')";
+                    OracleCommand cmd = new OracleCommand(sqlquery, conn);
+                    OracleDataAdapter oda = new OracleDataAdapter(cmd);
+                    DataSet ds = new DataSet();
+                    oda.Fill(ds);
+                    rowno = ds.Tables[0].Rows.Count;
+                    if (rowno == 0)
+                    {
+                        ReturnId = "0001";
+                    }
+                    else
+                    {
+                        rowno++;
+                        ReturnId = rowno.ToString();
+                    }
 
-
+                    conn.Close();
+                }
             }
             catch (Exception exe)
             {
@@ -75,10 +77,12 @@ namespace pharmacymansys
             {
                 ReturnId = "000" + rowno;
             }
+
             if (ReturnId.Length == 2)
             {
                 ReturnId = "00" + rowno;
             }
+
             if (ReturnId.Length == 3)
             {
                 ReturnId = "0" + rowno;
@@ -91,8 +95,6 @@ namespace pharmacymansys
             string pdate = stime.ToString("MMddyy");
             string bug = pdate + ReturnId;
             this.textBox1.Text = bug;
-
-
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -110,26 +112,30 @@ namespace pharmacymansys
 
             try
             {
-                if (conn.State != ConnectionState.Open)
+                using (OracleConnection conn = new OracleConnection(connectionString))
                 {
-                    conn.Open();
+                    if (conn.State != ConnectionState.Open)
+                    {
+                        conn.Open();
+                    }
+
+
+                    string sqluery = "SELECT * FROM MED_INFO ORDER BY MED_NAME";
+                    OracleCommand cd = new OracleCommand(sqluery, conn);
+                    OracleDataReader r;
+                    r = cd.ExecuteReader();
+                    while (r.Read())
+                    {
+                        string sn = r.GetString(1);
+                        coll.Add(sn);
+                    }
+
+
+                    r.Dispose();
+                    cd.Dispose();
+                    conn.Close();
                 }
-
-
-                string sqluery = "SELECT * FROM MED_INFO ORDER BY MED_NAME";
-                OracleCommand cd = new OracleCommand(sqluery, conn);
-                OracleDataReader r;
-                r = cd.ExecuteReader();
-                while (r.Read())
-                {
-                    string sn = r.GetString(1);
-                    coll.Add(sn);
-                }
-
-
-                r.Dispose();
-                cd.Dispose();
-                conn.Close();
+                
             }
             catch (Exception exe)
             {
@@ -138,10 +144,8 @@ namespace pharmacymansys
 
 
             textBox4.AutoCompleteCustomSource = coll;
-
         }
 
-       
 
         private void textBox4_KeyDown(object sender, KeyEventArgs e)
         {
@@ -152,47 +156,46 @@ namespace pharmacymansys
             {
                 try
                 {
-                    if (conn.State != ConnectionState.Open)
+                    using (OracleConnection conn = new OracleConnection(connectionString))
                     {
-                        conn.Open();
+                        if (conn.State != ConnectionState.Open)
+                        {
+                            conn.Open();
+                        }
+
+                        string sqlquery = "SELECT MED_ID,SELL_PRICE FROM MED_INFO WHERE MED_NAME='" + textBox4.Text +
+                                          "'";
+                        OracleCommand cmd = new OracleCommand(sqlquery, conn);
+                        OracleDataReader r = cmd.ExecuteReader();
+                        r.Read();
+                        textBox5.Text = r.GetValue(0).ToString();
+                        textBox9.Text = r.GetValue(1).ToString();
+
+                        r.Dispose();
+                        cmd.Dispose();
+
+                        sqlquery = "SELECT MED_QNTY FROM MED_STORE WHERE MED_ID='" + textBox5.Text + "'";
+                        cmd = new OracleCommand(sqlquery, conn);
+                        r = cmd.ExecuteReader();
+                        r.Read();
+                        textBox6.Text = r.GetValue(0).ToString();
+                        r.Dispose();
+                        cmd.Dispose();
+
+
+                        conn.Close();
                     }
-                    string sqlquery = "SELECT MED_ID,SELL_PRICE FROM MED_INFO WHERE MED_NAME='" + textBox4.Text + "'";
-                    OracleCommand cmd = new OracleCommand(sqlquery, conn);
-                    OracleDataReader r = cmd.ExecuteReader();
-                    r.Read();
-                    textBox5.Text = r.GetValue(0).ToString();
-                    textBox9.Text = r.GetValue(1).ToString();
-
-                    r.Dispose();
-                    cmd.Dispose();
-
-                    sqlquery = "SELECT MED_QNTY FROM MED_STORE WHERE MED_ID='" + textBox5.Text + "'";
-                    cmd = new OracleCommand(sqlquery, conn);
-                    r = cmd.ExecuteReader();
-                    r.Read();
-                    textBox6.Text = r.GetValue(0).ToString();
-                    r.Dispose();
-                    cmd.Dispose();
-
-
-
-
-
-
-
-                    conn.Close();
+                    
                 }
                 catch (Exception exe)
                 {
                     MessageBox.Show(exe.Message);
                 }
             }
-
         }
 
         private void textBox9_TextChanged(object sender, EventArgs e)
         {
-            
         }
 
         private void textBox8_TextChanged(object sender, EventArgs e)
@@ -206,16 +209,16 @@ namespace pharmacymansys
             }
             else if (string.IsNullOrWhiteSpace(textBox9.Text))
             {
-
             }
             else
             {
                 pp = decimal.Parse(textBox9.Text);
                 qty = int.Parse(textBox8.Text);
             }
+
             decimal rst = pp * qty;
             string tt = rst.ToString("0.##");
-          //  MessageBox.Show(tt);
+            //  MessageBox.Show(tt);
             textBox7.Text = tt;
         }
 
@@ -227,8 +230,6 @@ namespace pharmacymansys
             dataGridView1.Rows[n].Cells[2].Value = textBox9.Text;
             dataGridView1.Rows[n].Cells[3].Value = textBox8.Text;
             dataGridView1.Rows[n].Cells[4].Value = textBox7.Text;
-           
-
 
 
             try
@@ -236,12 +237,10 @@ namespace pharmacymansys
                 decimal sum = 0;
                 for (int i = 0; i < dataGridView1.Rows.Count; ++i)
                 {
-
-
                     sum += Convert.ToDecimal(dataGridView1.Rows[i].Cells[4].Value);
                 }
-                textBox12.Text = sum.ToString();
 
+                textBox12.Text = sum.ToString();
             }
             catch (Exception ex)
             {
@@ -269,7 +268,7 @@ namespace pharmacymansys
             textBox13.Clear();
             decimal gt = 0;
             decimal dis;
-           // decimal tax = decimal.Parse(textBox11.Text);
+            // decimal tax = decimal.Parse(textBox11.Text);
             if (string.IsNullOrWhiteSpace(textBox12.Text))
             {
                 dis = 0;
@@ -296,24 +295,31 @@ namespace pharmacymansys
             {
                 dis = "0";
             }
+
             string gt = this.textBox13.Text;
 
             /// pinvoice database insert
 
             try
             {
-                conn.Open();
-                string sqlquery = "INSERT INTO SALESINVOICE(SALE_ID,SDATE,CUST_NAME,CUST_MOBILE,CUST_ADD,AMOUNT,TAX,DISCOUNT,GTOTAL) VALUES('" + inv + "',TO_DATE('" + tdate + "', 'yyyymmdd'),'" + cust + "','" + mob + "','" + add + "','" + amount + "','" + tax + "','" + dis + "','" + gt + "')";
-                OracleCommand cmd = new OracleCommand(sqlquery, conn);
-                int i = cmd.ExecuteNonQuery();
-                if (i > 0)
+                using (OracleConnection conn = new OracleConnection(connectionString))
                 {
-                    cmd.Dispose();
-                    MessageBox.Show("Done");
+                    conn.Open();
+                    string sqlquery =
+                        "INSERT INTO SALESINVOICE(SALE_ID,SDATE,CUST_NAME,CUST_MOBILE,CUST_ADD,AMOUNT,TAX,DISCOUNT,GTOTAL) VALUES('" +
+                        inv + "',TO_DATE('" + tdate + "', 'yyyymmdd'),'" + cust + "','" + mob + "','" + add + "','" +
+                        amount + "','" + tax + "','" + dis + "','" + gt + "')";
+                    OracleCommand cmd = new OracleCommand(sqlquery, conn);
+                    int i = cmd.ExecuteNonQuery();
+                    if (i > 0)
+                    {
+                        cmd.Dispose();
+                        MessageBox.Show("Done");
+                    }
 
-
+                    conn.Close(); 
                 }
-                conn.Close();
+                
             }
             catch (Exception exe)
             {
@@ -324,38 +330,39 @@ namespace pharmacymansys
             /////////////////////////////////////////
 
 
-
-
             string StrQuery;
             // int j=0;
             try
             {
-                if (conn.State != ConnectionState.Open)
+                using (OracleConnection conn = new OracleConnection(connectionString))
                 {
-                    conn.Open();
+                    if (conn.State != ConnectionState.Open)
+                    {
+                        conn.Open();
+                    }
+
+                    OracleCommand cmd = new OracleCommand();
+                    cmd.Connection = conn;
+                    for (int i = 0; i < dataGridView1.Rows.Count - 1; i++)
+                    {
+                        StrQuery = "INSERT INTO SALES_DETAILS(SALE_ID,MED_NAME,UPRICE,QTY,TOTAL) VALUES ('"
+                                   + this.textBox1.Text + "','"
+                                   + dataGridView1.Rows[i].Cells[1].Value + "','"
+                                   + dataGridView1.Rows[i].Cells[2].Value + "','"
+                                   + dataGridView1.Rows[i].Cells[3].Value + "','"
+                                   + dataGridView1.Rows[i].Cells[4].Value + "')";
+                        cmd.CommandText = StrQuery;
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    //int i = cmd.ExecuteNonQuery();
+
+                    cmd.Dispose();
+                    MessageBox.Show("Done");
+                    // this.Hide();
+                    conn.Close();
                 }
-                OracleCommand cmd = new OracleCommand();
-                cmd.Connection = conn;
-                for (int i = 0; i < dataGridView1.Rows.Count - 1; i++)
-                {
-                    StrQuery = "INSERT INTO SALES_DETAILS(SALE_ID,MED_NAME,UPRICE,QTY,TOTAL) VALUES ('"
-                        + this.textBox1.Text + "','"
-                        + dataGridView1.Rows[i].Cells[1].Value + "','"
-                        + dataGridView1.Rows[i].Cells[2].Value + "','"
-                        + dataGridView1.Rows[i].Cells[3].Value + "','"
-                        + dataGridView1.Rows[i].Cells[4].Value + "')";
-                    cmd.CommandText = StrQuery;
-                    cmd.ExecuteNonQuery();
-                }
-
-                //int i = cmd.ExecuteNonQuery();
-
-                cmd.Dispose();
-                MessageBox.Show("Done");
-               // this.Hide();
-                conn.Close();
-
-
+                
             }
             catch (Exception exe)
             {
@@ -365,56 +372,49 @@ namespace pharmacymansys
             ///////////////////////////////////////////////
 
 
-
             try
             {
-                if (conn.State != ConnectionState.Open)
+                using (OracleConnection conn = new OracleConnection(connectionString))
                 {
-                    conn.Open();
+                    if (conn.State != ConnectionState.Open)
+                    {
+                        conn.Open();
+                    }
+
+                    for (int i = 0; i < dataGridView1.Rows.Count - 1; i++)
+                    {
+                        string sid = dataGridView1.Rows[i].Cells[1].Value.ToString();
+                        string sqlquery = "SELECT * FROM MED_STORE WHERE MED_NAME='" + sid + "'";
+                        OracleCommand cmd = new OracleCommand(sqlquery, conn);
+                        OracleDataReader r = cmd.ExecuteReader();
+                        r.Read();
+
+                        // textBox5.Text = r.GetValue(3).ToString();
+
+                        //    MessageBox.Show(r.GetValue(2).ToString());
+
+
+                        int qty = int.Parse(r.GetValue(2).ToString()) -
+                                  int.Parse(dataGridView1.Rows[i].Cells[3].Value.ToString());
+
+
+                        r.Dispose();
+
+                        cmd = new OracleCommand(
+                            "UPDATE MED_STORE SET MED_QNTY='" + qty + "' WHERE MED_NAME='" + sid + "'",
+                            conn);
+
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    conn.Close();
                 }
-
-                for (int i = 0; i < dataGridView1.Rows.Count - 1; i++)
-                {
-
-                    string sid = dataGridView1.Rows[i].Cells[1].Value.ToString();
-                    string sqlquery = "SELECT * FROM MED_STORE WHERE MED_NAME='" + sid + "'";
-                    OracleCommand cmd = new OracleCommand(sqlquery, conn);
-                    OracleDataReader r = cmd.ExecuteReader();
-                    r.Read();
-
-                    // textBox5.Text = r.GetValue(3).ToString();
-
-                    //    MessageBox.Show(r.GetValue(2).ToString());
-
-
-                    int qty = int.Parse(r.GetValue(2).ToString()) - int.Parse(dataGridView1.Rows[i].Cells[3].Value.ToString());
-
-
-                    r.Dispose();
-
-                    cmd = new OracleCommand("UPDATE MED_STORE SET MED_QNTY='" + qty + "' WHERE MED_NAME='" + sid + "'", conn);
-
-                    cmd.ExecuteNonQuery();
-
-
-
-
-                }
-                conn.Close();
+                
             }
             catch (Exception exe)
             {
                 MessageBox.Show(exe.Message);
             }
-
-
-
-
         }
-
-
-
-
-
     }
 }

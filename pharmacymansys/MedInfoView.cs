@@ -20,29 +20,33 @@ namespace pharmacymansys
         }
         string ni;
         
-        static string connectionString = "data source=XE;user id=PHARMACY;password=1234";
-        OracleConnection conn = new OracleConnection(connectionString);
+        static string connectionString = "User Id=hr;Password=hr;Data Source=localhost:1521/orcl";
+        
 
         void dataView(string sid) {
 
             try
             {
-                conn.Open();
-                string sqlquery = "SELECT * FROM MED_INFO WHERE MED_ID='"+sid+"'";
-                OracleCommand cmd = new OracleCommand(sqlquery, conn);
-                OracleDataReader r = cmd.ExecuteReader();
-                r.Read();
-                textBox1.Text = r.GetValue(1).ToString();
-                textBox6.Text = r.GetValue(2).ToString();
-                textBox5.Text = r.GetValue(3).ToString();
-                textBox3.Text = r.GetValue(4).ToString();
-                textBox7.Text = r.GetValue(5).ToString();
-                textBox8.Text = r.GetValue(6).ToString();
-                textBox4.Text = r.GetValue(7).ToString();
-                textBox2.Text = r.GetValue(8).ToString();
-                richTextBox1.Text = r.GetValue(9).ToString();
-                r.Dispose();
-                conn.Close();
+                using (OracleConnection conn = new OracleConnection(connectionString))
+                {
+                    conn.Open();
+                    string sqlquery = "SELECT * FROM MED_INFO WHERE MED_ID='" + sid + "'";
+                    OracleCommand cmd = new OracleCommand(sqlquery, conn);
+                    OracleDataReader r = cmd.ExecuteReader();
+                    r.Read();
+                    textBox1.Text = r.GetValue(1).ToString();
+                    textBox6.Text = r.GetValue(2).ToString();
+                    textBox5.Text = r.GetValue(3).ToString();
+                    textBox3.Text = r.GetValue(4).ToString();
+                    textBox7.Text = r.GetValue(5).ToString();
+                    textBox8.Text = r.GetValue(6).ToString();
+                    textBox4.Text = r.GetValue(7).ToString();
+                    textBox2.Text = r.GetValue(8).ToString();
+                    richTextBox1.Text = r.GetValue(9).ToString();
+                    r.Dispose();
+                    conn.Close(); 
+                }
+                
             }
             catch(Exception exe)
             {
@@ -69,19 +73,23 @@ namespace pharmacymansys
             {
                 try
                 {
-                    conn.Open();
-                    string sqlquery = "DELETE FROM MED_INFO WHERE MED_ID='" + ni + "'";
-                    OracleCommand cmd = new OracleCommand(sqlquery, conn);
-                   cmd.ExecuteNonQuery();
-                   cmd.Dispose();
+                    using (OracleConnection conn = new OracleConnection(connectionString))
+                    {
+                        conn.Open();
+                        string sqlquery = "DELETE FROM MED_INFO WHERE MED_ID='" + ni + "'";
+                        OracleCommand cmd = new OracleCommand(sqlquery, conn);
+                        cmd.ExecuteNonQuery();
+                        cmd.Dispose();
 
 
-                   sqlquery = "DELETE FROM MED_STORE WHERE MED_ID='" + ni + "'";
-                   cmd = new OracleCommand(sqlquery, conn);
-                    cmd.ExecuteNonQuery();
-                   cmd.Dispose();
+                        sqlquery = "DELETE FROM MED_STORE WHERE MED_ID='" + ni + "'";
+                        cmd = new OracleCommand(sqlquery, conn);
+                        cmd.ExecuteNonQuery();
+                        cmd.Dispose();
 
-                    conn.Close();
+                        conn.Close();
+                    }
+                    
                 }
                 catch (Exception exe)
                 {

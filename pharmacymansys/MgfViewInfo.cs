@@ -19,24 +19,27 @@ namespace pharmacymansys
             nid = mid;
         }
         string nid;
-        static string connectionString = "data source=XE;user id=PHARMACY;password=1234";
-        OracleConnection conn = new OracleConnection(connectionString);
+        static string connectionString = "User Id=hr;Password=hr;Data Source=localhost:1521/orcl";
 
         void dataView(string sid)
         {
 
             try
             {
-                conn.Open();
-                string sqlquery = "SELECT * FROM MFG_INFO WHERE MFG_ID='" + sid + "'";
-                OracleCommand cmd = new OracleCommand(sqlquery, conn);
-                OracleDataReader r = cmd.ExecuteReader();
-                r.Read();
-                textBox1.Text = r.GetValue(1).ToString();
-                richTextBox1.Text = r.GetValue(2).ToString();
-                textBox2.Text = r.GetValue(3).ToString();
-                r.Dispose();
-                conn.Close();
+                using (OracleConnection conn = new OracleConnection(connectionString))
+                {
+                    conn.Open();
+                                    string sqlquery = "SELECT * FROM MFG_INFO WHERE MFG_ID='" + sid + "'";
+                                    OracleCommand cmd = new OracleCommand(sqlquery, conn);
+                                    OracleDataReader r = cmd.ExecuteReader();
+                                    r.Read();
+                                    textBox1.Text = r.GetValue(1).ToString();
+                                    richTextBox1.Text = r.GetValue(2).ToString();
+                                    textBox2.Text = r.GetValue(3).ToString();
+                                    r.Dispose();
+                                    conn.Close();
+                }
+                
             }
             catch (Exception exe)
             {
@@ -61,12 +64,16 @@ namespace pharmacymansys
             {
                 try
                 {
-                    conn.Open();
-                    string sqlquery = "DELETE FROM MFG_INFO WHERE MFG_ID='" + nid + "'";
-                    OracleCommand cmd = new OracleCommand(sqlquery, conn);
-                    int i = cmd.ExecuteNonQuery();
+                    using (OracleConnection conn = new OracleConnection(connectionString))
+                    {
+                        conn.Open();
+                        string sqlquery = "DELETE FROM MFG_INFO WHERE MFG_ID='" + nid + "'";
+                        OracleCommand cmd = new OracleCommand(sqlquery, conn);
+                        int i = cmd.ExecuteNonQuery();
 
-                    conn.Close();
+                        conn.Close();  
+                    }
+                    
                 }
                 catch (Exception exe)
                 {

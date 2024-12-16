@@ -22,8 +22,7 @@ namespace pharmacymansys
             Utilities.ResetAllControls(this);
         }
 
-        static string connectionString = "data source=XE;user id=PHARMACY;password=1234";
-        OracleConnection conn = new OracleConnection(connectionString);
+        static string connectionString = "User Id=hr;Password=hr;Data Source=localhost:1521/orcl";
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -35,17 +34,22 @@ namespace pharmacymansys
             {
                 try
                 {
-                    conn.Open();
-                    string sqlquery = "INSERT INTO MFG_INFO(MGF_NAME,MFG_ADD,MFG_PHN) VALUES('" + textBox1.Text + "','" + richTextBox1.Text + "','" + textBox2.Text + "')";
-                    OracleCommand cmd = new OracleCommand(sqlquery,conn);
-                    int i = cmd.ExecuteNonQuery();
-                    if (i > 0)
+                    using (OracleConnection conn = new OracleConnection(connectionString))
                     {
-                        cmd.Dispose();
-                        this.Hide();
-                        adminControls adc = new adminControls();
-                        adc.Show();
+                        conn.Open();
+                        string sqlquery = "INSERT INTO MFG_INFO(MGF_NAME,MFG_ADD,MFG_PHN) VALUES('" + textBox1.Text +
+                                          "','" + richTextBox1.Text + "','" + textBox2.Text + "')";
+                        OracleCommand cmd = new OracleCommand(sqlquery, conn);
+                        int i = cmd.ExecuteNonQuery();
+                        if (i > 0)
+                        {
+                            cmd.Dispose();
+                            this.Hide();
+                            adminControls adc = new adminControls();
+                            adc.Show();
+                        } 
                     }
+                    
                 }
                 catch (Exception exe)
                 {

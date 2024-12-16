@@ -18,38 +18,41 @@ namespace pharmacymansys
             stuffload();
         }
 
-        static string connectionString = "data source=XE;user id=PHARMACY;password=1234";
-        OracleConnection conn = new OracleConnection(connectionString);
+        static string connectionString = "User Id=hr;Password=hr;Data Source=localhost:1521/orcl";
         DataTable dt;
 
         void stuffload()
         {
             try
             {
-                conn.Open();
-                string sqlquery = "SELECT EMP_ID,EMP_NAME,MOBILE,JOIN_DATE,POSITION,SALARY FROM EMPLOYE_INFO";
-                //string sqlquery = "SELECT * FROM MED_INFO";
-                OracleCommand cmd = new OracleCommand(sqlquery, conn);
-                OracleDataAdapter oda = new OracleDataAdapter();
-                oda.SelectCommand = cmd;
-                dt = new DataTable();
-                //     dt.Columns["MED_NAME"].ColumnName = "Name";
+                using (OracleConnection conn = new OracleConnection(connectionString))
+                {
+                    conn.Open();
+                    string sqlquery = "SELECT EMP_ID,EMP_NAME,MOBILE,JOIN_DATE,POSITION,SALARY FROM EMPLOYE_INFO";
+                    //string sqlquery = "SELECT * FROM MED_INFO";
+                    OracleCommand cmd = new OracleCommand(sqlquery, conn);
+                    OracleDataAdapter oda = new OracleDataAdapter();
+                    oda.SelectCommand = cmd;
+                    dt = new DataTable();
+                    //     dt.Columns["MED_NAME"].ColumnName = "Name";
 
-                oda.Fill(dt);
-                BindingSource bsource = new BindingSource();
-                bsource.DataSource = dt;
-                dataGridView1.DataSource = bsource;
-                oda.Update(dt);
-                dt.Columns[0].ColumnName = "ID";
-                dt.Columns[1].ColumnName = "Name";
-                dt.Columns[2].ColumnName = "Mobile";
-                dt.Columns[3].ColumnName = "Joining Date";
-                dt.Columns[4].ColumnName = "Position";
-                dt.Columns[4].ColumnName = "Salary";
+                    oda.Fill(dt);
+                    BindingSource bsource = new BindingSource();
+                    bsource.DataSource = dt;
+                    dataGridView1.DataSource = bsource;
+                    oda.Update(dt);
+                    dt.Columns[0].ColumnName = "ID";
+                    dt.Columns[1].ColumnName = "Name";
+                    dt.Columns[2].ColumnName = "Mobile";
+                    dt.Columns[3].ColumnName = "Joining Date";
+                    dt.Columns[4].ColumnName = "Position";
+                    dt.Columns[4].ColumnName = "Salary";
 
-                dt.AcceptChanges();
+                    dt.AcceptChanges();
 
-                conn.Close();
+                    conn.Close(); 
+                }
+                
             }
             catch (Exception ex)
             {
